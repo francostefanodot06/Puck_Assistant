@@ -10,7 +10,10 @@
 
 Aprovechando modelos de lenguaje locales (LLMs) ejecutados de forma 100% privada mediante **Ollama** e interactuando a través de **Open WebUI**, este asistente es capaz de diagnosticar problemas, sugerir comandos de remediación y automatizar tareas del entorno.
 
-![Inicio de Puck](Assets/Inicio%20de%20Puck.png)
+<div align="center">
+  <img src="Assets/Inicio%20de%20Puck.png" alt="Puck anunciando el inicio del monitoreo en Discord" width="900"/>
+  <br/><em>Puck anuncia en Discord que el monitoreo está en línea.</em>
+</div>
 
 ---
 
@@ -18,23 +21,10 @@ Aprovechando modelos de lenguaje locales (LLMs) ejecutados de forma 100% privada
 
 El ecosistema de Puck se divide en dos grandes módulos funcionales que operan en simultáneo: un backend asíncrono para el manejo de emergencias y un motor de *Function Calling* para la asistencia operativa.
 
-```mermaid
-flowchart LR
-    G[Grafana Alertmanager] -- webhook --> P
-    subgraph P["Puck (FastAPI)"]
-        A[Alertas]
-        R[Lectura: Proxmox · Grafana · Loki]
-        D[Escritorio y multimedia]
-        T[TTS Piper]
-    end
-    A -- prompt --> O[Ollama · qwen3:14b]
-    O -- resumen --> A -- webhook --> DC[(Discord)]
-    OW[Open WebUI Tools] -- function calling --> R
-    OW -- function calling --> D
-    OW -- texto --> T
-    R --> PX[Proxmox API]
-    R --> L[Loki]
-```
+<div align="center">
+  <img src="Assets/Arquitectura%20de%20Puck.png" alt="Diagrama de arquitectura de Puck" width="1000"/>
+  <br/><em>Arquitectura general. El diagrama es editable: abrí <a href="Assets/Arquitectura%20de%20Puck.excalidraw"><code>Arquitectura de Puck.excalidraw</code></a> en <a href="https://excalidraw.com">Excalidraw</a>.</em>
+</div>
 
 ### 1. 🚨 Pipeline de Alertas Proactivas (Grafana ➔ Discord)
 
@@ -46,15 +36,17 @@ Puck actúa como el *Webhook Receiver* definitivo para el stack de observabilida
 
 **Reglas de Monitoreo en Grafana** (carpeta *Homelab*, grupo *HomeKing*, evaluación cada 1 minuto): CPU, RAM, espacio en discos, CPU al 85 %, GPU al 85 % y temperatura del M.2.
 
-![Alertas en Grafana](Assets/Alertas%20en%20Grafana.png)
+<div align="center">
+  <img src="Assets/Alertas%20en%20Grafana.png" alt="Reglas de alerta en Grafana" width="900"/>
+</div>
 
 **Respuesta y Notificación de Puck en Discord:**
 
-> 📸 **Evidencia:** Puck anuncia el arranque del monitoreo y resume en lenguaje natural las alertas que dispara Grafana (acá, alertas de prueba con su umbral y el enlace para investigarlas).
+> 📸 **Evidencia:** Puck resume en lenguaje natural las alertas que dispara Grafana. Acá, dos alertas de prueba con su umbral y la indicación de revisar el enlace para confirmar si es un test o una situación real.
 
-![Puck inicio en Discord](Assets/Puck%20inicio%20en%20Discord.png)
-
-![Puck alerta en Discord](Assets/Puck%20alerta%20en%20Discord.png)
+<div align="center">
+  <img src="Assets/Puck%20alerta%20en%20Discord.png" alt="Puck resumiendo alertas de Grafana en Discord" width="900"/>
+</div>
 
 ---
 
@@ -78,7 +70,9 @@ Permite interactuar con la infraestructura mediante lenguaje natural (ej. *"¿C�
 
 > 📸 **Evidencia:** Puck consulta Proxmox, interpreta los datos y marca qué discos merecen atención (en este caso, el HDD-1TB al 76 %).
 
-![Consulta a Puck](Assets/Consulta%20a%20Puck%20mediante%20Open%20Webui.png)
+<div align="center">
+  <img src="Assets/Consulta%20a%20Puck%20mediante%20Open%20Webui.png" alt="Puck informando el estado del servidor Proxmox" width="900"/>
+</div>
 
 #### 🔧 Troubleshooting y Resolución de Incidentes
 
@@ -88,7 +82,9 @@ Cuando se detecta una anomalía (como un disco al límite de su capacidad), Puck
 
 > 📸 **Evidencia:** respuesta de Puck ante el HDD-1TB casi lleno, con las opciones de remediación.
 
-![Resolución de incidentes](Assets/Consulta%20a%20Puck%20mediante%20Open%20Webui%202.png)
+<div align="center">
+  <img src="Assets/Consulta%20a%20Puck%20mediante%20Open%20Webui%202.png" alt="Puck sugiriendo acciones para un disco casi lleno" width="900"/>
+</div>
 
 #### 🪵 Consulta de Logs con Loki (solo lectura)
 
@@ -96,13 +92,17 @@ Puck consulta **Loki** mediante LogQL para entender qué pasó antes (o durante)
 
 > 📸 **Evidencia 1:** listado de servicios con logs disponibles (*bazarr, cadvisor, excalidraw, flaresolverr, grafana, homepage, loki, open-webui, prometheus, prowlarr, radarr, sonarr*).
 
-![Servicios con logs en Loki](Assets/Loki%20servicios.png)
+<div align="center">
+  <img src="Assets/Loki%20servicios.png" alt="Servicios con logs disponibles en Loki" width="900"/>
+</div>
 
 > 📸 **Evidencia 2:** con un simple *"Revisame todos"*, Puck lanzó **12 consultas** a `consultar_logs` en una sola respuesta y devolvió un diagnóstico por servicio, con problema, causas probables y recomendación.
 
-![Diagnóstico de logs, parte 1](Assets/Loki%20diagnostico%201.png)
-
-![Diagnóstico de logs, parte 2](Assets/Loki%20diagnostico%202.png)
+<div align="center">
+  <img src="Assets/Loki%20diagnostico%201.png" alt="Diagnóstico de logs, parte 1" width="900"/>
+  <br/><br/>
+  <img src="Assets/Loki%20diagnostico%202.png" alt="Diagnóstico de logs, parte 2" width="900"/>
+</div>
 
 > 🐛 **Puck detectó un bug de su propio ecosistema:** Open WebUI recibía un `404` al pedir `/v1/audio/voices` al endpoint de TTS del backend. Justo el tipo de problema que pasa desapercibido hasta que alguien lee los logs.
 
@@ -124,7 +124,9 @@ El procesamiento cognitivo recae en modelos de peso medio/alto (como `qwen3:14b`
 
 > 📸 **Evidencia:** más de 2.8 M de tokens acumulados en Open WebUI durante el desarrollo y las pruebas.
 
-![Métricas de Uso](Assets/Uso.png)
+<div align="center">
+  <img src="Assets/Uso.png" alt="Métricas de uso de tokens en Open WebUI" width="900"/>
+</div>
 
 ---
 
