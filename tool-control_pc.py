@@ -1,72 +1,93 @@
-import requests
+kkimport requests
 
 class Tools:
     def __init__(self):
-        self.pc_ip = "TU_IP_PC"
+        self.pc_ip = "TU_IP_O_DOMINIO_DEL_BACKEND"
         self.puerto = "8000"
-        self.api_key = "TU_API_KEY"
-        self.base_url = f"http://{self.pc_ip}:{self.puerto}"
+        self.api_key = "tu_clave_bearer_para_la_api"
         self.s = requests.Session()
         self.s.headers["Authorization"] = f"Bearer {self.api_key}"
 
-    def abrir_aplicacion(self, comando: str) -> str:
-        """
-        Abre una aplicación en la PC.
-        Opciones permitidas: discord, terminal, brave, feishin, steam, dolphin, zen, heroic.
-        """
+    def _base(self) -> str:
+        return f"http://{self.pc_ip}:{self.puerto}"
+
+    def consultar_proxmox(self) -> str:
+        """Obtiene un resumen general del estado del servidor, CPU, RAM y uso de almacenamiento virtual."""
         try:
-            r = self.s.post(f"{self.base_url}/ejecutar/{comando.lower().strip()}", timeout=10)
-            if r.status_code == 200:
-                return r.json().get("mensaje", "Aplicación abierta.")
-            elif r.status_code == 401:
-                return "Error de Autenticación API."
-            return f"Error del backend: {r.text}"
+            response = self.s.get(f"{self._base()}/proxmox/estado", timeout=10)
+            if response.status_code == 200:
+                return response.json()["mensaje"]
+            else:
+                return f"Error: {response.text}"
         except Exception as e:
-            return f"Fallo de red al comunicarse con la PC: {str(e)}"
+            return f"Fallo: {str(e)}"
 
-    def cerrar_aplicacion(self, comando: str) -> str:
-        """
-        Cierra una aplicación en la PC.
-        Opciones permitidas: discord, terminal, brave, feishin, steam, dolphin, zen, heroic.
-        """
+    def listar_maquinas_virtuales(self) -> str:
+        """Lista todas las máquinas virtuales y contenedores LXC con su estado."""
         try:
-            r = self.s.post(f"{self.base_url}/cerrar/{comando.lower().strip()}", timeout=10)
-            if r.status_code == 200:
-                return r.json().get("mensaje", "Aplicación cerrada.")
-            elif r.status_code == 401:
-                return "Error de Autenticación API."
-            return f"Error del backend: {r.text}"
+            response = self.s.get(f"{self._base()}/proxmox/vms", timeout=15)
+            if response.status_code == 200:
+                return response.json()["mensaje"]
+            else:
+                return f"Error: {response.text}"
         except Exception as e:
-            return f"Fallo de red al comunicarse con la PC: {str(e)}"
+            return f"Fallo: {str(e)}"
 
-    def reporte_homelab(self) -> str:
-        """
-        Obtiene un resumen general del estado del Homelab (alertas de Grafana, uso de Proxmox y errores de Loki).
-        """
+    def revisar_todos_los_logs(self, minutos: int = 15, solo_errores: bool = True) -> str:
+        """Revisa los logs de TODOS los contenedores del homelab en simultáneo buscando errores recientes."""
         try:
-            r = self.s.get(f"{self.base_url}/homelab/resumen", timeout=15)
-            if r.status_code == 200:
-                return r.json().get("mensaje", "Reporte vacío.")
-            elif r.status_code == 401:
-                return "Error de Autenticación API."
-            return f"Error del backend: {r.text}"
+            response = self.s.get(
+                f"{self._base()}/loki/todos",
+                params={"minutos": minutos, "solo_errores": solo_errores},
+                timeout=60,
+            )
+            if response.status_code == 200:
+                return response.json()["mensaje"]
+            else:
+                return f"Error: {response.text}"
         except Exception as e:
-            return f"Fallo de red al comunicarse con el servidor: {str(e)}"
+            return f"Fallo: {str(e)}"
 
-    def estado_proxmox(self) -> str:
-        """
-        Obtiene el estado detallado de Proxmox, uso de discos, CPU, RAM y máquinas virtuales (VMs/LXCs).
-        """
+    def estado_smart_discos(self) -> str:
+        """Revisa la salud SMART detallada de los discos físicos en Proxmox."""
         try:
-            r_estado = self.s.get(f"{self.base_url}/proxmox/estado", timeout=10)
-            r_vms = self.s.get(f"{self.base_url}/proxmox/vms", timeout=10)
-
-            if r_estado.status_code == 401:
-                return "Error de Autenticación API."
-
-            estado_txt = r_estado.json().get("mensaje", "") if r_estado.status_code == 200 else "Fallo al leer estado."
-            vms_txt = r_vms.json().get("mensaje", "") if r_vms.status_code == 200 else "Fallo al leer VMs."
-
-            return f"{estado_txt}\n\nDetalle de máquinas:\n{vms_txt}"
+            response = self.s.get(f"{self._base()}/proxmox/discos", timeout=10)
+            if response.status_code == 200:
+                return response.json()["mensaje"]
+            else:
+                return f"Error: {response.text}"
         except Exception as e:
-            return f"Fallo de red al comunicarse con Proxmox: {str(e)}"
+            return f"Fallo: {str(e)}"
+
+    def estado_descargas_arr(self) -> str:
+        """Consulta el estado, salud y alertas del stack de descargas (Radarr, Sonarr, Prowlarr, Bazarr, qBittorrent)."""
+        try:
+            response = self.s.get(f"{self._base()}/homelab/arr", timeout=10)
+            if response.status_code == 200:
+                return response.json()["mensaje"]
+            else:
+                return f"Error: {response.text}"
+        except Exception as e:
+            return f"Fallo: {str(e)}"
+
+    def estado_backups_proxmox(self) -> str:
+        """Revisa el historial y estado de los últimos backups de Proxmox."""
+        try:
+            response = self.s.get(f"{self._base()}/proxmox/backups", timeout=10)
+            if response.status_code == 200:
+                return response.json()["mensaje"]
+            else:
+                return f"Error: {response.text}"
+        except Exception as e:
+            return f"Fallo: {str(e)}"
+
+    def consultar_actualizaciones(self) -> str:
+        """Consulta los registros de Watchtower para saber si hay actualizaciones recientes de contenedores o imágenes nuevas."""
+        try:
+            response = self.s.get(f"{self._base()}/homelab/actualizaciones", timeout=15)
+            if response.status_code == 200:
+                return response.json()["mensaje"]
+            else:
+                return f"Error: {response.text}"
+        except Exception as e:
+            return f"Fallo: {str(e)}"
