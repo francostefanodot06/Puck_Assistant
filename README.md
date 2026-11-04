@@ -126,7 +126,7 @@ Permite interactuar con la infraestructura mediante lenguaje natural (ej. *"¿C�
 
 Las métricas de uso llegan con una etiqueta ya calculada (`[a vigilar]` desde 80 %, `[CRÍTICO]` desde 90 %), para que el modelo no tenga que interpretar los umbrales.
 
-> 📸 **Evidencia:** Puck consulta Proxmox, interpreta los datos y marca qué discos merecen atención (en este caso, el HDD-1TB al 76 %).
+> 📸 **Evidencia:** con un pedido de *"escaneo general"*, Puck consulta Proxmox, interpreta los datos y señala el storage que merece atención: HDD2-Jellyfin al 89.4 %, ya en zona `[a vigilar]`, con la advertencia de que se acerca al 90 %.
 
 <div align="center">
   <img src="Assets/Consulta%20a%20Puck%20mediante%20Open%20Webui.png" alt="Puck informando el estado del servidor Proxmox" width="900"/>
@@ -137,12 +137,6 @@ Las métricas de uso llegan con una etiqueta ya calculada (`[a vigilar]` desde 8
 Cuando se detecta una anomalía (como un disco al límite de su capacidad), Puck no solo reporta el problema: cruza el dato con las alertas de Grafana y propone acciones concretas, desde encontrar qué ocupa espacio (`df`, `du`) hasta migrar datos a otro storage o expandir el volumen con LVM (`lvdisplay`, `lvextend`, `resize2fs`).
 
 > ⚠️ Los comandos son **orientativos**: Puck usa rutas genéricas que hay que adaptar al entorno real, y nunca ejecuta cambios por su cuenta.
-
-> 📸 **Evidencia:** respuesta de Puck ante el HDD-1TB casi lleno, con las opciones de remediación.
-
-<div align="center">
-  <img src="Assets/Consulta%20a%20Puck%20mediante%20Open%20Webui%202.png" alt="Puck sugiriendo acciones para un disco casi lleno" width="900"/>
-</div>
 
 #### 🐳 Estado de Docker
 
@@ -183,6 +177,12 @@ Si falta la API key de algún servicio, el reporte lo indica en lugar de fallar.
 #### 🌡️ Hardware: Temperaturas y UPS
 
 `GET /hardware/estado` consulta **Prometheus** (node_exporter + NUT) y devuelve la temperatura máxima por chip y el estado del UPS: voltaje de batería, carga y si el equipo está funcionando con red eléctrica o con batería. Los límites por tipo de sensor se ajustan en `LIMITE_TEMP` (CPU 80 °C, NVMe 70 °C, HDD 50 °C por defecto); se marcan `[a vigilar]` al superarlos y `[CRÍTICO]` con 10 °C de margen extra.
+
+> 📸 **Evidencia:** en una sola respuesta, Puck combina la salud SMART de los 8 discos físicos (todos `PASSED`), las temperaturas (la GPU a 79 °C queda marcada para revisar si está en reposo o bajo carga) y el estado del UPS (27.5 V, 52 % de carga, con red eléctrica).
+
+<div align="center">
+  <img src="Assets/Consulta%20a%20Puck%20mediante%20Open%20Webui%202.png" alt="Puck informando salud SMART, temperaturas y UPS" width="900"/>
+</div>
 
 #### 🗂️ Memoria de Incidencias
 
