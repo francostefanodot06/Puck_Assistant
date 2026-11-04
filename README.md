@@ -252,7 +252,7 @@ El procesamiento cognitivo recae en modelos de peso medio/alto, ejecutados local
 
 Durante el desarrollo se probaron también `qwen3.5:9b`, `qwen3:8b`, `hermes3` y `llama3.2`.
 
-> 📸 **Evidencia:** más de 2.8 M de tokens acumulados en Open WebUI durante el desarrollo y las pruebas.
+> 📸 **Evidencia:** más de 5.2 M de tokens acumulados en Open WebUI durante el desarrollo y las pruebas, con un pico de 1.1 M en un solo día y una racha de 10 días seguidos de uso.
 
 <div align="center">
   <img src="Assets/Uso.png" alt="Métricas de uso de tokens en Open WebUI" width="900"/>
@@ -396,18 +396,19 @@ Puck seguirá siendo un **observador**: todo lo que sigue es de solo lectura.
 - [x] Autenticación por API key en todos los endpoints
 - [x] Correlación automática de alertas con logs de Loki
 - [x] Salud SMART de discos y estado de backups `vzdump`
-- [x] Integración del stack de descargas (Radarr, Sonarr, Prowlarr, Bazarr, qBittorrent)
+- [x] Integración del stack de descargas (Radarr, Sonarr, Prowlarr, Bazarr, qBittorrent), incluida la detección de indexers caídos
 - [x] Consulta de logs con Loki, revisión general y redacción de secretos
 - [x] Seguimiento de actualizaciones de contenedores con Watchtower
-- [x] Reporte diario consolidado a Discord
+- [x] Reporte diario consolidado a Discord (Proxmox, SMART, descargas, Watchtower y backups)
 - [x] Estado de contenedores Docker (caídos, `unhealthy`, en reinicio)
 - [x] Temperaturas y UPS desde Prometheus
 - [x] Bitácora de incidentes (SQLite) e histórico de métricas
 - [x] Novedades de Jellyfin
+- [x] Control de música con Navidrome
 
 **Próximos pasos**
-- [ ] Resumen completo: sumar discos, backups, stack de descargas y errores de Loki a `/homelab/resumen`
-- [ ] Reporte proactivo con anti-repetición (no repetir avisos ya reportados)
+- [ ] Sumar discos, backups, stack de descargas y errores de Loki a `/homelab/resumen`
+- [ ] Reporte diario con anti-repetición (no repetir avisos ya reportados)
 - [ ] Aviso de respaldo con el detalle crudo de la alerta cuando Ollama no responde
 - [ ] SMART detallado: desgaste de NVMe y temperatura
 - [ ] Predicción de días hasta que se llene un disco, a partir del histórico de métricas
